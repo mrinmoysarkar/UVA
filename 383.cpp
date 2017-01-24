@@ -142,9 +142,9 @@ public:
 };
 int main()
 {
-	//freopen("text.txt", "r", stdin);
+	freopen("text.txt", "r", stdin);
 
-	//freopen("0.txt", "w", stdout);
+	freopen("0.txt", "w", stdout);
 	data_structure que(2);
 	data_structure label(0);
 	str_data code;

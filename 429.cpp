@@ -1,13 +1,13 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include<iostream>
 #include<cstdio>
+#include<string>
+#include<sstream>
 using namespace std;
-#define MAX 27
-int data[27];
-double value[27];
+#define MAX 200
 int grid[MAX][MAX];
-double multiplier[26];
-double output[MAX];
-double gmax = -1.0;
+string data[MAX];
 
 class data_structure{
 public:
@@ -80,22 +80,10 @@ public:
 	}
 };
 
-void init_multiplier()
-{
-	multiplier[0] = 1;
-	for (int i = 1; i < 26; i++)
-	{
-		multiplier[i] = multiplier[i - 1] * 0.95;
-	}
-}
-
-void init_variable()
+void init_var()
 {
 	for (int i = 0; i < MAX; i++)
 	{
-		output[i] = 0;
-		data[i] = 0;
-		value[i] = 0;
 		for (int j = 0; j < MAX; j++)
 		{
 			grid[i][j] = 0;
@@ -103,32 +91,6 @@ void init_variable()
 	}
 }
 
-void print()
-{
-	for (int i = 0; i < MAX; i++)
-	{
-		for (int j = 0; j < MAX; j++)
-		{
-			cout << grid[i][j] << " ";
-		}
-		cout << endl;
-	}
-}
-
-void print_output()
-{
-	for (int i = 0; i < MAX; i++)
-	{
-		if (output[i] == gmax)
-		{
-			char c = 'A' + i;
-			cout << "Import from " << c << endl;
-			break;
-			//printf("%.2f ", output[i]);
-		}
-	}
-	//cout << endl;
-}
 
 int main()
 {
@@ -136,73 +98,118 @@ int main()
 	//freopen("o.txt", "w", stdout);
 	data_structure que(2);
 	data_structure label(0);
-	init_multiplier();
 	int N;
-	while (scanf("%d", &N) == 1)
+	cin >> N;
+	int toppp = 0;
+	for (int ds = 0; ds < N; ds++)
 	{
-		gmax = -1.0;
-		//cout << "test" << endl;
-		init_variable();
-		for (int i = 0; i < N; i++)
+		if (toppp) cout << endl;
+		toppp = 1;
+		init_var();
+		int indx = 0;
+		while (true)
 		{
-			char c;
-			cin >> c;
-			int x = c - 'A';
-			data[x] = 1;
-			double v;
-			cin >> v;
-			value[x] = v;
-			char ch[30];
-			cin >> ch;
-			int j = 0;
-			while (ch[j])
-			{
-				c = ch[j];
-				int y;
-				if (c == '*') y = 26;
-				else y = c - 'A';
-				grid[x][y] = 1;
-				grid[y][x] = 1;
-				j++;
-			}//*/
+			string s;
+			cin >> s;
+			if (s == "*")break;
+			else{
+				data[indx] = s;
+				indx++;
+			}
 		}
-		//print();
-		//cout << endl << endl;
-		
-		
-		for (int ii = 0; ii < MAX - 1; ii++)
+		for (int i = 0; i < indx; i++)
 		{
-			if (data[ii])
+			for (int j = 0; j < indx; j++)
 			{
-				if (gmax > value[ii]) continue;
-				int source = ii;
-				int dest = 26;
+				if (i != j)
+				{
+					string s1 = data[i];
+					string s2 = data[j];
+					if (s1.length() == s2.length())
+					{
+						int l = s1.length();
+						int o_mil = 0;
+						for (int k = 0; k < l; k++)
+						{
+							if (s1[k] != s2[k])
+							{
+								o_mil++;
+								if (o_mil > 1)
+								{
+									break;
+								}
+							}
+						}
+						if (o_mil == 1)
+						{
+							grid[i][j] = 1;
+							grid[j][i] = 1;
+						}
+					}
+				}
+			}
+		}
+
+		string s1, s2, s3;
+		getline(cin, s3);
+		while (getline(cin, s3) && !s3.empty())
+		{
+			//cin >> s3;
+			//getline(cin, s3);
+			//gets(s3);
+			//cout << "hello"<<s3 << endl;
+			//if (s3.empty())break;
+			//cout << s3 << endl;
+			istringstream iss(s3);
+			iss >> s1>>s2;
+			//cout << s1 << " " << s2 << endl;
+			///*
+			int source = -1, dest = -1;
+			for (int i = 0; i < indx; i++)
+			{
+				if (s1 == data[i])
+				{
+					source = i;
+				}
+				if (s2 == data[i])
+				{
+					dest = i;
+				}
+				if (source != -1 && dest != -1)break;
+			}
+			if (source != -1 && dest != -1 && source == dest){
+				cout << s1 << " " << s2 << " " << 0 << endl;
+			}
+			else if (source != -1 && dest != -1)
+			{
 				que.reset();
 				label.reset();
 				que.push(source);
 				que.pop();
-				int no_of_push = 0;
 				int l = 0;
 				int w = 1;
 				while (w)
-				{	
-					for (int i = 0; i <MAX; i++)
+				{
+					for (int i = 0; i < indx; i++)
 					{
 						if (grid[source][i] && source != i)
 						{
+
 							if (i == dest)
 							{
 								w = 0;
 								break;
 							}
+
 							if (que.push(i))
 							{
-								no_of_push++;
+
 								label.push(l + 1);
 							}
 
 						}
 					}
+
 					if (w)
 					{
 						source = que.pop();
@@ -212,18 +219,22 @@ int main()
 						}
 						l = label.pop();
 					}
-					
-				}
-				//cout << l << endl;
-				if (!w)
-				{
-					output[ii] = value[ii] * multiplier[l];
-					//output[ii] = ((int)(output[ii] * 100 + .5) / 100.0);
-					if (output[ii] > gmax) gmax = output[ii];
+
 				}
 
+				if (!w)
+				{
+					cout << s1 << " " << s2 << " " << (l + 1) << endl;
+				}
+				else
+				{
+					//cout << "NO SHIPMENT POSSIBLE" << endl;
+				}
 			}
+			//*/
 		}
-		print_output();
 	}
+
+
+	return 0;
 }
